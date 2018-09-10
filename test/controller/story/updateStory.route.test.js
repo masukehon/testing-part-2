@@ -3,7 +3,7 @@ const { equal } = require("assert");
 const { app } = require("../../../src/app");
 const { Story } = require("../../../src/models/story.model");
 
-describe.only("test update/ story", () => {
+describe("test update/ story", () => {
     let idStory;
     beforeEach("Create a story for test", async() => {
         const story = new Story({ content: "hahaha" });
@@ -34,7 +34,7 @@ describe.only("test update/ story", () => {
         equal(updateStory.content, "hahaha");
     });
 
-    it.only("Cannot update a removed story", async() => {
+    it("Cannot update a removed story", async() => {
 
         await Story.findByIdAndRemove(idStory);
 

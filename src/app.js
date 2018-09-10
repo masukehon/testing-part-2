@@ -1,6 +1,8 @@
 const express = require("express");
 const { json } = require("body-parser");
 const { Story } = require("./models/story.model.js");
+const { UserService } = require("./services/user.service");
+
 const app = express();
 
 app.use(json());
@@ -43,6 +45,16 @@ app.delete("/story/remove/:id", (req, res) => {
         })
         .catch(error => res.status(400).send({ success: false, message: error.message }));
 });
+
+//user signin
+app.post("/user/signin", (req, res) => {
+    const { email, password } = req.body;
+    UserService.signIn(email, password)
+        .then(user => res.send({ success: true, user }))
+        .catch(error => res.status(400).send({ success: false, message: error.message }));
+});
+
+
 
 
 module.exports = { app };
