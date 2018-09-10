@@ -54,6 +54,12 @@ app.post("/user/signin", (req, res) => {
         .catch(error => res.status(400).send({ success: false, message: error.message }));
 });
 
+app.post("/user/signup", (req, res) => {
+    const { email, password } = req.body;
+    UserService.signUp(email, password)
+        .then(user => res.send({ success: true, user }))
+        .catch(error => res.status(400).send({ success: false, message: error.message }));
+});
 
 
 
