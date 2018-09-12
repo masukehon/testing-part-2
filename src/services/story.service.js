@@ -24,7 +24,6 @@ class StoryService {
         if (!content) throw new MyError("CONTENT_MUST_BE_PROVIDED", 400);
         checkObjectId(id);
 
-
         const story = await Story.findOneAndUpdate({ _id: id, author: idUser }, { content }, { new: true });
         //nếu truyền đúng định dạng id nhưng ko tìm thấy story đó
         if (!story) throw new MyError("CANNOT_FIND_STORY", 404);
@@ -33,11 +32,12 @@ class StoryService {
     }
     static async delete(id, idUser) {
 
+        checkObjectId(id);
         const story = await Story.findOneAndRemove({ _id: id, author: idUser });
         await User.findByIdAndUpdate(idUser, { $pull: { stories: id } });
 
         if (!story)
-            throw new Error("Cannot find story");
+            throw new MyError("CANNOT_FIND_STORY", 404);
         return story;
     }
 }

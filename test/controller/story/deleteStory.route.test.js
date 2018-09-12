@@ -63,7 +63,8 @@ describe("test Delete/ story", () => {
 
         equal(success, false);
         equal(story, undefined);
-        equal(message, "Cannot find story");
+        equal(response.status, 404);
+        equal(message, "CANNOT_FIND_STORY");
         const deleteStory = await Story.findOne({});
         equal(deleteStory, null);
 
@@ -88,7 +89,8 @@ describe("test Delete/ story", () => {
         const { success, story, message } = response.body;
         equal(success, false);
         equal(story, undefined);
-        equal(message, "Cannot find story");
+        equal(message, "CANNOT_FIND_STORY");
+        equal(response.status, 404);
         const deleteStory = await Story.findOne({});
         equal(deleteStory.content, "hahaha");
     });

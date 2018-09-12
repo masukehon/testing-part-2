@@ -4,7 +4,7 @@ const { app } = require("../../../src/app");
 const { Story } = require("../../../src/models/story.model");
 const { UserService } = require("../../../src/services/user.service");
 
-describe.only("test update/ story", () => {
+describe("test update/ story", () => {
     let token1, idUser1, token2, idUser2, idStory;
     beforeEach("Create a story for test", async() => {
         await UserService.signUp("caovinhkhait@gmail.com", "123");

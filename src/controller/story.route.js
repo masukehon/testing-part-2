@@ -42,7 +42,7 @@ storyRouter.delete("/remove/:id", (req, res) => {
         .then(story => {
             res.send({ success: true, story });
         })
-        .catch(error => res.status(400).send({ success: false, message: error.message }));
+        .catch(error => res.status(error.statusCode).send({ success: false, message: error.message }));
 });
 
 module.exports = { storyRouter };
