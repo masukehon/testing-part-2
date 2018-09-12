@@ -21,7 +21,7 @@ storyRouter.post("/", (req, res) => {
 
     StoryService.add(req.idUser, content)
         .then(storyInfo => res.send({ success: true, storyInfo }))
-        .catch(error => res.status(400).send({ success: false, message: error.message }));
+        .catch(res.onError);
 });
 
 storyRouter.put("/update/:id", (req, res) => {
@@ -33,7 +33,7 @@ storyRouter.put("/update/:id", (req, res) => {
             //nên lúc test phải lấy dữ liệu từ db ra để so sánh lần nữa
             res.send({ success: true, story });
         })
-        .catch(error => res.status(error.statusCode).send({ success: false, message: error.message }));
+        .catch(res.onError);
 });
 
 storyRouter.delete("/remove/:id", (req, res) => {
@@ -42,7 +42,7 @@ storyRouter.delete("/remove/:id", (req, res) => {
         .then(story => {
             res.send({ success: true, story });
         })
-        .catch(error => res.status(error.statusCode).send({ success: false, message: error.message }));
+        .catch(res.onError);
 });
 
 module.exports = { storyRouter };
