@@ -16,6 +16,7 @@ class StoryService {
         return story.save();
     }
     static async update(idUser, id, content) {
+
         const story = await Story.findOneAndUpdate({ _id: id, author: idUser }, { content }, { new: true });
         //nếu truyền đúng định dạng id nhưng ko tìm thấy story đó
         if (!story)

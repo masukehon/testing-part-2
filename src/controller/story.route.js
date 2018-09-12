@@ -1,8 +1,11 @@
 const { Router } = require("express");
 const { StoryService } = require("../services/story.service");
 const { verify } = require("../helpers/jwt");
+const { mustBeUser } = require("./mustBeUser.middleware");
 
 const storyRouter = Router();
+
+storyRouter.use(mustBeUser);
 
 storyRouter.get("/", (req, res) => {
     StoryService.getAll()
@@ -10,11 +13,14 @@ storyRouter.get("/", (req, res) => {
         .catch(error => console.log(error));
 });
 
+// storyRouter.use(mustBeUser);
+//nếu để middleware ở đây thì hàm lấy tất cả ko 
+//cần phải vào xác thực mustBeUser vì code chạy từ trên xuống
+
 storyRouter.post("/", (req, res) => {
     const { content } = req.body;
 
-    verify(req.headers.token)
-        .then(obj => StoryService.add(obj._id, content))
+    StoryService.add(req.idUser, content)
         .then(storyInfo => res.send({ success: true, storyInfo }))
         .catch(error => res.status(400).send({ success: false, message: error.message }));
 });
@@ -22,8 +28,7 @@ storyRouter.post("/", (req, res) => {
 storyRouter.put("/update/:id", (req, res) => {
     const { content } = req.body;
 
-    verify(req.headers.token)
-        .then(user => StoryService.update(user._id, req.params.id, content))
+    StoryService.update(req.idUser, req.params.id, content)
         .then(story => {
             //res.send này không liên quan gì trong db
             //nên lúc test phải lấy dữ liệu từ db ra để so sánh lần nữa
