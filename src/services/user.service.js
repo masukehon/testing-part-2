@@ -1,5 +1,6 @@
 const { User } = require("../models/user.model");
 const { hash, compare } = require("bcrypt");
+const { verify, sign } = require("../helpers/jwt");
 
 class UserService {
 
@@ -13,8 +14,7 @@ class UserService {
         if (user) throw new Error("Email was existed");
 
         let password = await hash(plainPassword, 8);
-        password = password.toString();
-        let newUser = User({ email, password });
+        let newUser = User({ email, password, stories: [] });
         newUser = await newUser.save();
         if (!newUser) throw new Error("Error not define");
         return newUser;
@@ -25,8 +25,9 @@ class UserService {
         if (!user) throw new Error("Cannot find user");
         const same = await compare(plainPassword, user.password);
         if (!same) throw new Error("Invalid password");
+        const token = await sign(user);
+        user.token = token;
         return user;
-
     }
 }
 
