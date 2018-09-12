@@ -1,6 +1,5 @@
 const { Router } = require("express");
 const { StoryService } = require("../services/story.service");
-const { verify } = require("../helpers/jwt");
 const { mustBeUser } = require("./mustBeUser.middleware");
 
 const storyRouter = Router();
@@ -39,7 +38,7 @@ storyRouter.put("/update/:id", (req, res) => {
 
 storyRouter.delete("/remove/:id", (req, res) => {
 
-    StoryService.delete(req.params.id)
+    StoryService.delete(req.params.id, req.idUser)
         .then(story => {
             res.send({ success: true, story });
         })

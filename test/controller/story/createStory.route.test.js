@@ -5,7 +5,7 @@ const { Story } = require("../../../src/models/story.model");
 const { User } = require("../../../src/models/user.model");
 const { UserService } = require("../../../src/services/user.service");
 
-describe("test POST/ story", () => {
+describe.only("test POST/ story", () => {
     let token, userId;
     beforeEach("Sign up for test", async() => {
         await UserService.signUp("caovinhkhait@gmail.com", "123");
@@ -46,17 +46,31 @@ describe("test POST/ story", () => {
         //nếu dùng như ở trên thì phải có done() và try catch
     });
 
-    it("Cannot create new story with empty content", async() => {
+    it.only("Cannot create new story with empty content", async() => {
         const response = await request(app)
             .post("/story")
             .set({ token })
             .send({ content: "" });
-        const { success, storyInfo } = response.body;
+        const { success, storyInfo, message } = response.body;
         equal(response.status, 400);
         equal(success, false);
         equal(storyInfo, undefined);
+        equal(message, "CONTENT_MUST_BE_PROVIDED");
         const story = await Story.findOne({});
         equal(story, null);
 
+    });
+
+    it.only("Cannot create new story without token", async() => {
+        const response = await request(app)
+            .post("/story")
+            .send({ content: "abc" });
+        const { success, storyInfo, message } = response.body;
+        equal(success, false);
+        equal(storyInfo, null);
+        equal(message, "INVALID_TOKEN");
+
+        const storyInDB = await Story.findOne({});
+        equal(storyInDB, null);
     });
 });
