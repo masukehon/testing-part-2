@@ -5,7 +5,7 @@ const { Story } = require("../../../src/models/story.model");
 const { User } = require("../../../src/models/user.model");
 const { UserService } = require("../../../src/services/user.service");
 
-describe.only("test POST/ story", () => {
+describe("test POST/ story", () => {
     let token, userId;
     beforeEach("Sign up for test", async() => {
         await UserService.signUp("caovinhkhait@gmail.com", "123");
@@ -46,7 +46,7 @@ describe.only("test POST/ story", () => {
         //nếu dùng như ở trên thì phải có done() và try catch
     });
 
-    it.only("Cannot create new story with empty content", async() => {
+    it("Cannot create new story with empty content", async() => {
         const response = await request(app)
             .post("/story")
             .set({ token })
@@ -61,7 +61,7 @@ describe.only("test POST/ story", () => {
 
     });
 
-    it.only("Cannot create new story without token", async() => {
+    it("Cannot create new story without token", async() => {
         const response = await request(app)
             .post("/story")
             .send({ content: "abc" });

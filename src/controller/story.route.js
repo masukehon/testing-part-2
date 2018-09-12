@@ -33,7 +33,7 @@ storyRouter.put("/update/:id", (req, res) => {
             //nên lúc test phải lấy dữ liệu từ db ra để so sánh lần nữa
             res.send({ success: true, story });
         })
-        .catch(error => res.status(400).send({ success: false, message: error.message }));
+        .catch(error => res.status(error.statusCode).send({ success: false, message: error.message }));
 });
 
 storyRouter.delete("/remove/:id", (req, res) => {

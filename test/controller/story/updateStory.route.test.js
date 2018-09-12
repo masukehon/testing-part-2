@@ -4,7 +4,7 @@ const { app } = require("../../../src/app");
 const { Story } = require("../../../src/models/story.model");
 const { UserService } = require("../../../src/services/user.service");
 
-describe("test update/ story", () => {
+describe.only("test update/ story", () => {
     let token1, idUser1, token2, idUser2, idStory;
     beforeEach("Create a story for test", async() => {
         await UserService.signUp("caovinhkhait@gmail.com", "123");
@@ -34,15 +34,31 @@ describe("test update/ story", () => {
         equal(updateStory.author.toString(), idUser1);
     });
 
+    it("Cannot update a story with empty content", async() => {
+        const response = await request(app)
+            .put(`/story/update/${idStory}`)
+            .set({ token: token1 })
+            .send({ content: "" });
+
+        const { success, story, message } = response.body;
+        equal(success, false);
+        equal(message, "CONTENT_MUST_BE_PROVIDED");
+        equal(story, null);
+
+        const updateStory = await Story.findOne({});
+        equal(updateStory.content, "hahaha");
+    });
+
     it("Cannot update a story with invalid id", async() => {
         const response = await request(app)
             .put(`/story/update/${idStory}123`)
             .set({ token: token1 })
             .send({ content: "hihihi" });
 
-        const { success, story } = response.body;
+        const { success, story, message } = response.body;
         equal(success, false);
         equal(story, null);
+        equal(message, "INVALID_ID");
         const updateStory = await Story.findOne({});
         equal(updateStory.content, "hahaha");
     });
@@ -58,8 +74,12 @@ describe("test update/ story", () => {
 
         const { success, message, story } = response.body;
         equal(success, false);
-        equal(message, "Cannot find story");
+        equal(response.status, 404);
+        equal(message, "CANNOT_FIND_STORY");
         equal(story, null);
+
+        const storyInDB = await Story.findOne({});
+        equal(storyInDB, null);
     });
 
     it("Cannot update a story with token2", async() => {
@@ -71,7 +91,7 @@ describe("test update/ story", () => {
         const { success, message, story } = response.body;
 
         equal(success, false);
-        equal(message, "Cannot find story");
+        equal(message, "CANNOT_FIND_STORY");
         equal(story, null);
 
         const updateStory = await Story.findOne({});
