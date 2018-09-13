@@ -47,31 +47,71 @@ describe.only("test Create comment", () => {
         equal(userInDB.stories[0].author.toString(), idUser1);
     });
 
-    xit("Cannot create new story with empty content", async() => {
+    it("Cannot create new story with empty content", async() => {
+
         const response = await request(app)
-            .post("/story")
-            .set({ token })
-            .send({ content: "" });
-        const { success, storyInfo, message } = response.body;
+            .post("/comment/create")
+            .set({ token: token2 })
+            .send({ idStory, content: "" });
+
+        const { success, comment, message } = response.body;
+        // return console.log(response.body);
         equal(response.status, 400);
         equal(success, false);
-        equal(storyInfo, undefined);
+        equal(comment, undefined);
         equal(message, "CONTENT_MUST_BE_PROVIDED");
-        const story = await Story.findOne({});
-        equal(story, null);
+        const commentInDB = await Comment.findOne({});
+        equal(commentInDB, null);
 
     });
 
-    xit("Cannot create new story without token", async() => {
-        const response = await request(app)
-            .post("/story")
-            .send({ content: "abc" });
-        const { success, storyInfo, message } = response.body;
-        equal(success, false);
-        equal(storyInfo, null);
-        equal(message, "INVALID_TOKEN");
+    it("Cannot create new story with invalid idStory", async() => {
 
-        const storyInDB = await Story.findOne({});
-        equal(storyInDB, null);
+        const response = await request(app)
+            .post("/comment/create")
+            .set({ token: token2 })
+            .send({ idStory: "123", content: "Great story" });
+
+        const { success, comment, message } = response.body;
+        // return console.log(response.body);
+        equal(response.status, 400);
+        equal(success, false);
+        equal(comment, undefined);
+        equal(message, "INVALID_ID");
+        const commentInDB = await Comment.findOne({});
+        equal(commentInDB, null);
+
+    });
+
+    it("Cannot create new story without token", async() => {
+
+        const response = await request(app)
+            .post("/comment/create")
+            .send({ idStory, content: "Great story" });
+
+        const { success, comment, message } = response.body;
+        // return console.log(response.body);
+        equal(response.status, 400);
+        equal(success, false);
+        equal(comment, undefined);
+        equal(message, "INVALID_TOKEN");
+        const commentInDB = await Comment.findOne({});
+        equal(commentInDB, null);
+    });
+
+    it("Cannot create new story with invalid token", async() => {
+        const response = await request(app)
+            .post("/comment/create")
+            .set({ token: "ldsakjffdj" })
+            .send({ idStory, content: "Great story" });
+
+        const { success, comment, message } = response.body;
+        // return console.log(response.body);
+        equal(response.status, 400);
+        equal(success, false);
+        equal(comment, undefined);
+        equal(message, "INVALID_TOKEN");
+        const commentInDB = await Comment.findOne({});
+        equal(commentInDB, null);
     });
 });
