@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { MyError } = require('../models/my-error.model');
 
 const SECRET_KEY = 'qucsq384uqvd';
 
@@ -14,7 +15,7 @@ function sign(obj) {
 function verify(token) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, SECRET_KEY, (error, obj) => {
-            if (error) return reject(error);
+            if (error) return reject(new MyError("INVALID_TOKEN", 400));
             delete obj.exp;
             delete obj.iat;
             resolve(obj);

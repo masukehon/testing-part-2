@@ -1,33 +1,45 @@
 const { User } = require("../models/user.model");
 const { hash, compare } = require("bcrypt");
 const { verify, sign } = require("../helpers/jwt");
+const { MyError } = require("../models/my-error.model");
 
 class UserService {
 
     static async signUp(email, plainPassword) {
-        if (email === "")
-            throw new Error("Invalid email");
-        if (plainPassword === "")
-            throw new Error("Invalid password");
+        if (!plainPassword)
+            throw new MyError("INVALID_PASSWORD", 400);
+        const password = await hash(plainPassword, 8);
+        try {
 
-        const user = await User.findOne({ email });
-        if (user) throw new Error("Email was existed");
-
-        let password = await hash(plainPassword, 8);
-        let newUser = User({ email, password, stories: [] });
-        newUser = await newUser.save();
-        if (!newUser) throw new Error("Error not define");
-        return newUser;
+            const user = User({ email, password, stories: [] });
+            await user.save();
+            const userInfo = user.toObject();
+            delete userInfo.password;
+            return userInfo;
+        } catch (error) {
+            if (error.name === "ValidationError")
+                throw new MyError("INVALID_USER_INFO", 400);
+            throw new MyError("EMAIL_EXISTED", 400);
+        }
     }
 
     static async signIn(email, plainPassword) {
         const user = await User.findOne({ email });
-        if (!user) throw new Error("Cannot find user");
+        if (!user) throw new MyError("CANNOT_FIND_USER", 404);
         const same = await compare(plainPassword, user.password);
-        if (!same) throw new Error("Invalid password");
+        if (!same) throw new MyError("INVALID_USER_INFO", 400);
         const token = await sign(user);
         user.token = token;
         return user;
+    }
+
+    static async check(id) {
+        const user = await User.findById(id);
+        if (!user) throw new MyError('CANNOT_FIND_USER', 404);
+        const userInfo = user.toObject();
+        delete userInfo.password;
+        userInfo.token = await sign({ _id: user._id });
+        return userInfo;
     }
 }
 

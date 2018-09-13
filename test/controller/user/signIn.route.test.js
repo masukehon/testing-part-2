@@ -30,7 +30,8 @@ describe("test sign in", () => {
         const { success, user, message } = response.body;
         equal(user, null);
         equal(success, false);
-        equal(message, "Cannot find user");
+        equal(response.statusCode, 404);
+        equal(message, "INVALID_USER_INFO");
 
     });
 
@@ -39,7 +40,7 @@ describe("test sign in", () => {
         const { success, user, message } = response.body;
         equal(user, null);
         equal(success, false);
-        equal(message, "Invalid password");
+        equal(message, "INVALID_USER_INFO");
 
     });
 
