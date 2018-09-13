@@ -14,17 +14,16 @@ commentRouter.post("/create", (req, res) => {
         .catch(res.onError);
 });
 
-// commentRouter.put("/update/:id", (req, res) => {
-//     const { content } = req.body;
-
-//     CommentService.update(req.idUser, req.params.id, content)
-//         .then(story => {
-//             //res.send này không liên quan gì trong db
-//             //nên lúc test phải lấy dữ liệu từ db ra để so sánh lần nữa
-//             res.send({ success: true, story });
-//         })
-//         .catch(res.onError);
-// });
+commentRouter.put("/update/:id", (req, res) => {
+    const { content } = req.body;
+    CommentService.update(req.idUser, req.params.id, content)
+        .then(comment => {
+            //res.send này không liên quan gì trong db
+            //nên lúc test phải lấy dữ liệu từ db ra để so sánh lần nữa
+            res.send({ success: true, comment });
+        })
+        .catch(res.onError);
+});
 
 // commentRouter.delete("/remove/:id", (req, res) => {
 

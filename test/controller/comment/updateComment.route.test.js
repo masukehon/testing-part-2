@@ -6,71 +6,68 @@ const { User } = require("../../../src/models/user.model");
 const { Comment } = require("../../../src/models/comment.model");
 const { UserService } = require("../../../src/services/user.service");
 const { StoryService } = require("../../../src/services/story.service");
+const { CommentService } = require("../../../src/services/comment.service");
 
-describe("test Create comment", () => {
-    let token1, idUser1, idStory;
-    beforeEach("Create user, story to test comment", async() => {
+describe.only("test Update Comment", () => {
+    let token1, idUser1, idStory, idComment;
+    beforeEach("Update story,comment, 2 user to test comment", async() => {
         await UserService.signUp("caovinhkhait@gmail.com", "123");
         const user1 = await UserService.signIn("caovinhkhait@gmail.com", "123");
         await UserService.signUp("masuke96@gmail.com", "123");
         const user2 = await UserService.signIn("masuke96@gmail.com", "123");
 
         const story = await StoryService.add(user1._id, "hahaha");
+        const comment = await CommentService.create(story._id, user2._id, "Cau chuyen hay vc");
 
         idStory = story._id;
         token1 = user1.token;
         idUser1 = user1._id;
         token2 = user2.token;
         idUser2 = user2._id;
+        idComment = comment._id;
     });
 
-    it("Can create new comment", async() => {
-
+    it("Can update comment", async() => {
         const response = await request(app)
-            .post("/comment/create")
+            .put("/comment/update/" + idComment)
             .set({ token: token2 })
-            .send({ idStory, content: "Great story" });
-        const { success, comment } = response.body;
+            .send({ content: "Cau chuyen rat hay" });
+
+        const { comment, success, message } = response.body;
 
         equal(success, true);
-        equal(comment.content, "Great story");
-        equal(comment.author, idUser2);
+        equal(comment.content, "Cau chuyen rat hay");
+        equal(message, null);
 
-        const commentInDB = await Comment.findOne({}); //trả về thằng đầu tiên nó tìm thấy
-        equal(commentInDB._id, comment._id);
-        equal(commentInDB.content, comment.content);
-        equal(commentInDB.author.toString(), idUser2);
-
-        const userInDB = await User.findOne({}).populate('stories');
-        equal(userInDB.stories[0]._id.toString(), idStory);
-        equal(userInDB.stories[0].content, "hahaha");
-        equal(userInDB.stories[0].author.toString(), idUser1);
+        const commentInDB = await Comment.findById(idComment);
+        equal(comment.content, commentInDB.content);
+        equal(comment._id, commentInDB._id);
     });
 
-    it("Cannot create new comment with empty content", async() => {
+    it("Cannot update comment with empty content", async() => {
 
         const response = await request(app)
-            .post("/comment/create")
+            .put("/comment/update/" + idComment)
             .set({ token: token2 })
-            .send({ idStory, content: "" });
+            .send({ content: "" });
 
-        const { success, comment, message } = response.body;
-        // return console.log(response.body);
-        equal(response.status, 400);
+        const { comment, success, message } = response.body;
+
         equal(success, false);
-        equal(comment, undefined);
+        equal(comment, null);
         equal(message, "CONTENT_MUST_BE_PROVIDED");
-        const commentInDB = await Comment.findOne({});
-        equal(commentInDB, null);
+
+        const commentInDB = await Comment.findById(idComment);
+        equal("Cau chuyen hay vc", commentInDB.content);
 
     });
 
-    it("Cannot create new comment with invalid idStory", async() => {
+    it("Cannot udpate comment with invalid idComment", async() => {
 
         const response = await request(app)
-            .post("/comment/create")
+            .put("/comment/update/1233")
             .set({ token: token2 })
-            .send({ idStory: "123", content: "Great story" });
+            .send({ content: "Cau chuyen rat hay" });
 
         const { success, comment, message } = response.body;
         // return console.log(response.body);
@@ -78,16 +75,16 @@ describe("test Create comment", () => {
         equal(success, false);
         equal(comment, undefined);
         equal(message, "INVALID_ID");
-        const commentInDB = await Comment.findOne({});
-        equal(commentInDB, null);
+        const commentInDB = await Comment.findById(idComment);
+        equal("Cau chuyen hay vc", commentInDB.content);
 
     });
 
-    it("Cannot create new comment without token", async() => {
+    it("Cannot update comment without token", async() => {
 
         const response = await request(app)
-            .post("/comment/create")
-            .send({ idStory, content: "Great story" });
+            .put("/comment/update/1233")
+            .send({ content: "Cau chuyen rat hay" });
 
         const { success, comment, message } = response.body;
         // return console.log(response.body);
@@ -95,15 +92,15 @@ describe("test Create comment", () => {
         equal(success, false);
         equal(comment, undefined);
         equal(message, "INVALID_TOKEN");
-        const commentInDB = await Comment.findOne({});
-        equal(commentInDB, null);
+        const commentInDB = await Comment.findById(idComment);
+        equal("Cau chuyen hay vc", commentInDB.content);
     });
 
-    it("Cannot create new comment with invalid token", async() => {
+    it("Cannot update comment with invalid token", async() => {
         const response = await request(app)
             .post("/comment/create")
             .set({ token: "ldsakjffdj" })
-            .send({ idStory, content: "Great story" });
+            .send({ idStory, content: "Cau chuyen rat hay" });
 
         const { success, comment, message } = response.body;
         // return console.log(response.body);
@@ -112,6 +109,6 @@ describe("test Create comment", () => {
         equal(comment, undefined);
         equal(message, "INVALID_TOKEN");
         const commentInDB = await Comment.findOne({});
-        equal(commentInDB, null);
+        equal("Cau chuyen hay vc", commentInDB.content);
     });
 });
