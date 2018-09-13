@@ -45,4 +45,10 @@ storyRouter.delete("/remove/:id", (req, res) => {
         .catch(res.onError);
 });
 
+storyRouter.post("/like/:id", (req, res) => {
+    StoryService.like(req.params.id, req.idUser)
+        .then(story => res.send({ success: true, story }))
+        .catch(res.onError);
+});
+
 module.exports = { storyRouter };

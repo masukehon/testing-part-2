@@ -4,7 +4,7 @@ const { app } = require("../../../src/app");
 const { User } = require("../../../src/models/user.model");
 const { hash, compare } = require("bcrypt");
 
-describe.only("test sign up", () => {
+describe("test sign up", () => {
 
     it("Can sign up", async() => {
         const response = await request(app)

@@ -5,7 +5,8 @@ const SECRET_KEY = 'qucsq384uqvd';
 
 function sign(obj) {
     return new Promise((resolve, reject) => {
-        jwt.sign(obj.toJSON(), SECRET_KEY, { expiresIn: '2 days' }, (error, token) => {
+        obj = JSON.parse(JSON.stringify(obj))
+        jwt.sign(obj, SECRET_KEY, { expiresIn: '2 days' }, (error, token) => {
             if (error) return reject(error);
             resolve(token);
         });

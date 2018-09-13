@@ -40,6 +40,14 @@ class StoryService {
             throw new MyError("CANNOT_FIND_STORY", 404);
         return story;
     }
+
+    static async like(idStory, idUser) {
+        checkObjectId(idStory, idUser);
+        const story = await Story.findByIdAndUpdate(idStory, { $push: { fans: idUser } }, { new: true });
+        if (!story)
+            throw new MyError("CANNOT_FIND_STORY", 404);
+        return story;
+    }
 }
 
 module.exports = { StoryService };

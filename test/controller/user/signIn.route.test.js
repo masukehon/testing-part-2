@@ -31,7 +31,7 @@ describe("test sign in", () => {
         equal(user, null);
         equal(success, false);
         equal(response.statusCode, 404);
-        equal(message, "INVALID_USER_INFO");
+        equal(message, "CANNOT_FIND_USER");
 
     });
 
