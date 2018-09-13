@@ -85,4 +85,20 @@ describe.only("Test like story", () => {
         const storyInDB = await Story.findOne({});
         equal(storyInDB, null);
     });
+
+    it("Cannot like a story twice", async() => {
+        await request(app)
+            .post("/story/like/" + idStory)
+            .set({ token: token2 });
+
+        const response = await request(app)
+            .post("/story/like/" + idStory)
+            .set({ token: token2 });
+
+        const { success, story, message } = response.body;
+        equal(success, false);
+        equal(message, "CANNOT_FIND_STORY");
+        equal(story, null);
+        equal(response.status, 404);
+    });
 });

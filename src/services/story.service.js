@@ -43,7 +43,10 @@ class StoryService {
 
     static async like(idStory, idUser) {
         checkObjectId(idStory, idUser);
-        const story = await Story.findByIdAndUpdate(idStory, { $push: { fans: idUser } }, { new: true });
+        const query = { _id: idStory, fans: { $ne: idUser } };
+        //$ne: not equal. là trong mảng fans phải ko có thằng nào bằng idUser nó mới làm
+        //nếu có rồi thì trả về null
+        const story = await Story.findOneAndUpdate(query, { $push: { fans: idUser } }, { new: true });
         if (!story)
             throw new MyError("CANNOT_FIND_STORY", 404);
         return story;
