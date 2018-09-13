@@ -44,9 +44,19 @@ class StoryService {
     static async like(idStory, idUser) {
         checkObjectId(idStory, idUser);
         const query = { _id: idStory, fans: { $ne: idUser } };
-        //$ne: not equal. là trong mảng fans phải ko có thằng nào bằng idUser nó mới làm
+        //$ne: not equal. là trong mảng fans ko đc có thằng nào bằng idUser nó mới tìm
         //nếu có rồi thì trả về null
-        const story = await Story.findOneAndUpdate(query, { $push: { fans: idUser } }, { new: true });
+        const story = await Story.findOneAndUpdate(query, { $addToSet: { fans: idUser } }, { new: true });
+        if (!story)
+            throw new MyError("CANNOT_FIND_STORY", 404);
+        return story;
+    }
+
+    static async dislike(idStory, idUser) {
+        checkObjectId(idStory, idUser);
+        const query = { _id: idStory, fans: { $eq: idUser } };
+        //$eq: equal. là trong mảng fans phải có thằng nào bằng idUser nó mới tìm
+        const story = await Story.findOneAndUpdate(query, { $pull: { fans: idUser } }, { new: true });
         if (!story)
             throw new MyError("CANNOT_FIND_STORY", 404);
         return story;

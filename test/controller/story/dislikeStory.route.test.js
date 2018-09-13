@@ -6,7 +6,7 @@ const { Story } = require("../../../src/models/story.model");
 const { StoryService } = require("../../../src/services/story.service");
 const { UserService } = require("../../../src/services/user.service");
 
-describe("Test like story", () => {
+describe("Test dislike story", () => {
     let token1, token2, idUser1, idUser2, idStory;
     beforeEach("Create user, story for test",
         async() => {
@@ -16,35 +16,38 @@ describe("Test like story", () => {
             const user2 = await UserService.signIn("masuke96@gmail.com", "123");
 
             const story = new Story({ content: "hahaha", author: user1._id, fans: [] });
+
             await story.save();
             idStory = story._id;
             token1 = user1.token;
             idUser1 = user1._id;
             token2 = user2.token;
             idUser2 = user2._id;
+
+            await StoryService.like(idStory, idUser2);
         });
-    it("Can like a story", async() => {
+    it("Can dislike a story", async() => {
 
         const response = await request(app)
-            .post("/story/like/" + idStory)
+            .post("/story/dislike/" + idStory)
             .set({ token: token2 });
 
         // console.log(response.body);
         const { success, story, message } = response.body;
+
         equal(success, true);
         equal(message, null);
         equal(story._id, idStory);
         equal(story.content, "hahaha");
-        equal(story.fans[0], idUser2);
 
         const storyInDB = await Story.findById(idStory);
-        equal(storyInDB.fans[0].toString(), idUser2);
+        equal(storyInDB.fans.length, 0);
     });
 
-    it("Cannot like a story with invalid id", async() => {
+    it("Cannot dislike a story with invalid id", async() => {
 
         const response = await request(app)
-            .post("/story/like/123")
+            .post("/story/dislike/123")
             .set({ token: token2 });
 
         // console.log(response.body);
@@ -54,7 +57,7 @@ describe("Test like story", () => {
         equal(story, null);
     });
 
-    it("Cannot like a story without token", async() => {
+    it("Cannot dislike a story without token", async() => {
 
         const response = await request(app)
             .post("/story/like/" + idStory);
@@ -66,10 +69,10 @@ describe("Test like story", () => {
         equal(story, null);
 
         const storyInDB = await Story.findById(idStory);
-        equal(storyInDB.fans.length, 0);
+        equal(storyInDB.fans.length, 1);
     });
 
-    it("Cannot like a removed story", async() => {
+    it("Cannot dislike a removed story", async() => {
         await StoryService.delete(idStory, idUser1);
 
         const response = await request(app)
@@ -86,7 +89,7 @@ describe("Test like story", () => {
         equal(storyInDB, null);
     });
 
-    it("Cannot like a story twice", async() => {
+    it("Cannot dislike a story twice", async() => {
         await request(app)
             .post("/story/like/" + idStory)
             .set({ token: token2 });
